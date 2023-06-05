@@ -119,12 +119,16 @@ Here the executed changes are listed.
     - Removed fields inside commands:
       - *errorCheck*
     - Added fields inside parameters:
-      - *EmergencyJerkLimit*: jerk value for the emergency stop.
-      - *EmergencyAccelerationLimit*: acceleration value for the emergency stop.
+      - *EmergencyJerkLimit*: jerk value for the emergency stop and the maximum value (hard limit).
+      - *EmergencyAccelerationLimit*: acceleration value for the emergency stop and the maximum value (hard limit).
       - *disableUpperPosLimit*: for disabling the upper position software limit (1: disableLimit, 0: NOT disableLimit).
       - *disableLowerPosLimit*: for disabling the lower position software limit (1: disableLimit, 0: NOT disableLimit).
       - *disableLimitMaxTime*: the maximum time to have the limits disabled, in s.
       - *drivesEnabled*: to inform the system if the drives are enabled or not (1: drivesEnabled, 0: drivesDisabled).
+      - *maxVelocityLimit*: velocity maximum value (hard limit).
+      - *trackingSpeedMargin*: the percentage of the *VelocityLimit* for tracking. [^2]
+      - *trackingAccelerationMargin*: the percentage of the *AccelerationLimit* for tracking. [^2]
+      - *trackingJerkMargin*: the percentage of the *JerkLimit* for tracking. [^2]
 
   ```xml
     <item>
@@ -157,6 +161,26 @@ Here the executed changes are listed.
     <DataType>double</DataType>
     <Default>0</Default>
   </item>
+  <item>
+    <Name>maxVelocityLimit</Name>
+    <DataType>double</DataType>
+    <Default>3.5</Default>
+  </item>
+  <item>
+    <Name>trackingSpeedMargin</Name>
+    <DataType>double</DataType>
+    <Default>3</Default>
+  </item>
+  <item>
+    <Name>trackingAccelerationMargin</Name>
+    <DataType>double</DataType>
+    <Default>25</Default>
+  </item>
+  <item>
+    <Name>trackingJerkMargin</Name>
+    <DataType>double</DataType>
+    <Default>30</Default>
+  </item>
   ```
 
   - Telemetry XML changes:
@@ -168,4 +192,31 @@ Here the executed changes are listed.
         - EmergencyStopping_SubState -> 0
         - WaitClearError_SubState -> 1
 
+- Reduce the warnings by adding terminators to the un connected outputs
+- Comment not used blocks
+- Modify the `trajectorySystem` to allow changing the tracking limits from commands using parameters, the idea was to
+  remove the *XXHardLimits* from the `lsstParamsList.m` but we need to have default values for initializing the trajectory
+  generator. For this reason, the *XXhardLimit* parameters below are renamed as follows:
+  - velocityHardLimit -> defaultMaxSpeed: this value is to have a initial value for the `trajectorySystem` matlab system
+    setup.
+  - accelerationHardLimit -> defaultMaxAcceleration: this value is to have a initial value for the `trajectorySystem`
+    matlab system setup.
+  - jerkHardLimit -> defaultMaxJerk: this value is to have a initial value for the `trajectorySystem` matlab system
+    setup.
+  - trackingSpeedMargin -> defaultTrackingSpeedMargin: this value is to have a initial value for the `trajectorySystem` matlab system
+    setup.
+  - trackingAccelerationMargin -> defaultTrackingAccelerationMargin: this value is to have a initial value for the `trajectorySystem` matlab system
+    setup.
+  - trackingJerkMargin -> defaultTrackingJerkMargin: this value is to have a initial value for the `trajectorySystem` matlab system
+    setup.
+
+- Remove *positionUpperHardLimit* and *positionLowerHardLimit* from the `lsstParamsList.m` and the corresponding saturation
+  from the simulink model, to allow configuration parameters *RangeMinimum_deg* and *RangeMaximum_deg* to be useful. Before
+  both we checked, so moving the range to values bigger/smaller than the hard coded *positionXXHardLimit* values.
+
 [^1]: These values are not consecutive to reduce the impact of the changes and prevent errors
+[^2]: Is important to keep in mind that the trajectory generator uses two algorithms in parallel, so called slewing and
+tracking. One for compensating the slews (position steps) and the other for compensating the speed changes. So both
+algorithms are added when the system is in tracking state. This means that the actual speed, acceleration and jerk can
+be higher than the ones defined as *VelocityLimit, AccelerationLimit, JerkLimit*, as both algorithms are independent and
+the outcome is added, so for example, the total jerk would be *JerkLimit* + *JerkLimit* x (100 + *trackingJerkMargin*) / 100
