@@ -219,4 +219,4 @@ Here the executed changes are listed.
 tracking. One for compensating the slews (position steps) and the other for compensating the speed changes. So both
 algorithms are added when the system is in tracking state. This means that the actual speed, acceleration and jerk can
 be higher than the ones defined as *VelocityLimit, AccelerationLimit, JerkLimit*, as both algorithms are independent and
-the outcome is added, so for example, the total jerk would be *JerkLimit* + *JerkLimit* x (100 + *trackingJerkMargin*) / 100
+the outcome is added, so for example, the total jerk would be *JerkLimit* x (100 + *trackingJerkMargin*) / 100
