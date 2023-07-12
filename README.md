@@ -37,7 +37,7 @@ Here the executed changes are listed.
     - *consVelComplete*: flag
   - Removed not used outputs of the state machine, leaving just:
     - *currentState*: top level state of the state machine
-    - *PublishErrorCode*:
+    - *PublishErrorCode*: trigger for publishing the error code
     - *PublishState*: trigger for the matlab system to execute the actions
     - *rotatorEnabledState*: the sub-states inside the enable state
     - (added) *rotatorFaultState*: the sub-states inside the fault state
