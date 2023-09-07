@@ -191,6 +191,7 @@ Here the executed changes are listed.
       - FaultSubStates, enum values:
         - EmergencyStopping_SubState -> 0
         - WaitClearError_SubState -> 1
+        - NoError_SubState -> 2
 
 - Reduce the warnings by adding terminators to the un connected outputs
 - Comment not used blocks
