@@ -113,6 +113,9 @@ Here the executed changes are listed.
   ![Fault sub-state machine](./media/FaultState.png)
 - Remove the errorCheck command to go to fault, use the fault command instead.
 - Changes in the `commandParser.stepImpl` function to include the actions for the fault state.
+- Changes in the `commandParser.stepImpl` function to remove the `inRange` verification, this is set as a guard before 
+  the stateflow
+  ![Guard for inRange commands](media/GuardForInRangePt2PtCommands.png)
 - In the model the two current limiter blocks are bypassed as with the software limit these are not required.
 - Changes in the XML files:
   - Commands XML changes
